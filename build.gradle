@@ -1,0 +1,49 @@
+apply plugin: 'idea'
+apply plugin: 'scala'
+apply plugin: 'jetty'
+// START SNIPPET use-plugin
+apply plugin: 'war'
+// END SNIPPET use-plugin
+group = 'gradle'
+version = '1.0'
+
+def scala_version='2.10.0'
+
+// START SNIPPET customization
+configurations {
+   moreLibs
+}
+
+repositories {
+   flatDir { dirs "lib" }
+   mavenCentral()
+}
+
+dependencies {
+    scalaTools "org.scala-lang:scala-compiler:${scala_version}"
+    scalaTools "org.scala-lang:scala-library:${scala_version}"
+    testCompile "org.scala-lang:scala-library:${scala_version}"
+
+    compile "org.scala-lang:scala-library:${scala_version}"
+    compile 'net.debasishg:sjson_2.10:0.19'
+    providedCompile "javax.servlet:servlet-api:2.5"
+    compile 'com.sun.jersey:jersey-server:1.8'
+    compile 'com.sun.jersey:jersey-core:1.8'
+    testCompile "junit:junit:4.11"
+}
+
+compileTestScala {
+        scalaCompileOptions.useAnt = false
+} 
+
+war {
+    from 'src/rootContent' // adds a file-set to the root of the archive
+    webInf { from 'src/additionalWebInf' } // adds a file-set to the WEB-INF dir.
+    classpath fileTree('additionalLibs') // adds a file-set to the WEB-INF/lib dir.
+    classpath configurations.moreLibs // adds a configuration to the WEB-INF/lib dir.
+    webXml = file('src/someWeb.xml') // copies a file to WEB-INF/web.xml
+}
+// END SNIPPET customization
+stopKey = 'foo'
+stopPort = 9451
+httpPort = 8080
